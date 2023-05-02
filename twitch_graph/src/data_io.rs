@@ -1,14 +1,20 @@
 use std::{
     collections::HashMap,
     collections::hash_map::Entry,
+    hash::BuildHasherDefault,
+};
+use rustc_hash::{
+    FxHashMap,
+    FxHasher,
 };
 
-use csv;
+use csv::Reader;
+
 
 /// Takes in a csv file of edges and returns a hashmap of the form:
-/// - {node: [[node, similarity, disiimilarity], ...], ...}
-pub fn twitch_edges_data() -> HashMap<u32, Vec<Vec<u32>>> {
-    let mut rdr = csv::Reader::from_path("data/large_twitch_edges.csv").unwrap();
+/// - {node: \[\[node, similarity, disiimilarity], ...], ...}
+pub fn read_edges(file: String) -> HashMap<u32, Vec<Vec<u32>>, BuildHasherDefault<FxHasher>> {
+    let mut rdr = Reader::from_path(file).unwrap();
     let mut records = vec![];
 
     for rec in rdr.records() {
@@ -16,7 +22,7 @@ pub fn twitch_edges_data() -> HashMap<u32, Vec<Vec<u32>>> {
         records.push(rec.iter().map(|x| x.parse::<u32>().unwrap()).collect::<Vec<u32>>());
     }
 
-    let mut map: HashMap<u32, Vec<Vec<u32>>> = HashMap::new();
+    let mut map: FxHashMap<u32, Vec<Vec<u32>>> = FxHashMap::default();
 
     for values in records {
         match map.entry(values[0]) {
@@ -32,4 +38,47 @@ pub fn twitch_edges_data() -> HashMap<u32, Vec<Vec<u32>>> {
     
     return map;
     
+}
+
+
+/// Takes in a csv file of features and returns a hashmap of the form:
+/// - {node: \[views, mature, life_time, dead_account, language, affiliate], ...}
+pub fn read_features(file: String) -> HashMap<u32, Vec<String>, BuildHasherDefault<FxHasher>> {
+    let mut rdr = Reader::from_path(file).unwrap();
+    let mut records = vec![];
+
+    for rec in rdr.records() {
+        let rec = rec.unwrap();
+        records.push(rec.iter().map(|x| x.parse::<String>().unwrap()).collect::<Vec<String>>());
+    }
+
+    let mut map: FxHashMap<u32, Vec<String>> = FxHashMap::default();
+
+    // The hashmap becomes:
+    // [views, mature, life_time, dead_account, language, affiliate]
+    for mut values in records {
+        if values.len() == 2 {
+            panic!("Issue: {:?}", values);
+        }
+        let key = values[5].parse::<u32>().unwrap();
+        values.drain(3..=5); // drops created at, updated at, and id
+        match map.entry(key) {
+            Entry::Vacant(e) => {
+                e.insert(values);
+            }
+            Entry::Occupied(e) => {
+                panic!("Duplicate key: {}", e.key());
+            }
+        }
+
+    }
+
+    return map;
+}
+
+
+#[test]
+fn test_times() {
+    timeit!({read_edges("data/large_twitch_edges.csv".to_string());});
+    timeit!({read_features("data/large_twitch_features.csv".to_string());});
 }
