@@ -9,18 +9,19 @@ The measures of similarity and dissimilarity is taken from [Penn States' STAT 50
 ## Data
 
 There are six features that I used to see the similarity between the friends of two vertices:
-    - views (int)
-    - mature (bool)
-    - life_time (int)
-    - dead_account (bool)
-    - language (str)
-    - affiliate (bool)
+
+- views (int)
+- mature (bool)
+- life_time (int)
+- dead_account (bool)
+- language (str)
+- affiliate (bool)
 
 ## Calculating Similarity and Dissimilarity
 
 The similarity and dissimilarity is calculated using the following formulas:
-
-- List the formulas
+- Ordinal Similarity: $s = 1 - \frac{||p-q||}{n-1}$
+- Jaccard Index: $J(A,B) = \frac{|A \cap B|}{|A \cup B|}$
 
 ## Application of Formulas
 
