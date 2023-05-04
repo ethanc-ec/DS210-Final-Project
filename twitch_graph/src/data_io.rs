@@ -13,16 +13,16 @@ use csv::Reader;
 
 /// Takes in a csv file of edges and returns a hashmap of the form:
 /// - {node: \[\[node, similarity, disiimilarity], ...], ...}
-pub fn read_edges(file: String) -> HashMap<u32, Vec<Vec<f32>>, BuildHasherDefault<FxHasher>> {
+pub fn read_edges(file: String) -> HashMap<u32, Vec<u32>, BuildHasherDefault<FxHasher>> {
     let mut rdr = Reader::from_path(file).unwrap();
     let mut records = vec![];
 
     for rec in rdr.records() {
         let rec = rec.unwrap();
-        records.push(rec.iter().map(|x| x.parse::<f32>().unwrap()).collect::<Vec<f32>>());
+        records.push(rec.iter().map(|x| x.parse::<u32>().unwrap()).collect::<Vec<u32>>());
     }
 
-    let mut map: FxHashMap<u32, Vec<Vec<f32>>> = FxHashMap::default();
+    let mut map: FxHashMap<u32, Vec<u32>> = FxHashMap::default();
 
     for values in records {
         let id_1 = values[0];
@@ -31,10 +31,10 @@ pub fn read_edges(file: String) -> HashMap<u32, Vec<Vec<f32>>, BuildHasherDefaul
         for (first, second) in [(id_1, id_2), (id_2, id_1)].into_iter() {
             match map.entry(first as u32) {
                 Entry::Vacant(e) => {
-                    e.insert(vec![vec![second, 0.0, 0.0]]);
+                    e.insert(vec![second]);
                 }
                 Entry::Occupied(mut e) => {
-                    e.get_mut().push(vec![second, 0.0, 0.0]);
+                    e.get_mut().push(second);
                 }
             }
         }
@@ -89,10 +89,12 @@ mod tests{
         let temp = read_edges("data/large_twitch_edges.csv".to_string());
         for (i, (key, value)) in temp.iter().enumerate() {
             println!("{}: {:?}\n", key, value);
-            if i == 4 {
+            if i == 2 {
                 break;
             }
         }
+
+        assert_eq!(168114, temp.len());
     }
 
     #[test]
@@ -100,9 +102,11 @@ mod tests{
         let temp = read_features("data/large_twitch_features.csv".to_string());
         for (i, (key, value)) in temp.iter().enumerate() {
             println!("{}: {:?}\n", key, value);
-            if i == 4 {
+            if i == 2 {
                 break;
             }
         }
+
+        assert_eq!(168114, temp.len());
     }
 }
