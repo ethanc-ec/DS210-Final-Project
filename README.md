@@ -28,4 +28,4 @@ The ordinal calculation will be used to see how similar and dissimilar two nodes
 ## Running The Code
 
 To run, simply clone the project, `cd` into the `twitch_graph` folder, then use `cargo run --release`.
-The code will stop looking for pairs of nodes with greater similarity/dissimilarity scores after finding two pairs that each have scores greater than $0.9999$ (or $99.99%$ similarity/dissimilarity) to save time and because finding a perfect match (score of 1.0) for both scores will require a full iteration of all node pairs in the worst case.
+The code will stop looking for pairs of nodes with greater similarity/dissimilarity scores after finding two pairs that each have scores greater than $0.9999$ (or $99.99$% similarity/dissimilarity) to save time and because finding a perfect match (score of 1.0) for both scores will require a full iteration of all node pairs in the worst case.
