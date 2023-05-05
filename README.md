@@ -1,6 +1,6 @@
 # DS210 Final Project
 
-For this final project, I will be using a [dataset of twitch users](https://arxiv.org/abs/2005.07959) to answer the prompt:
+For this final project, I used a [dataset of twitch users](https://arxiv.org/abs/2005.07959) to answer the prompt:
 
 - How often are friends of my friends my friends? This is very generic question, but can you find two vertices who are friends with most similar or most dissimilar sets of connections? What is the right measure of similarity?
 
@@ -20,7 +20,8 @@ There are six features that I used to see the similarity between the friends of 
 ## Calculating Similarity and Dissimilarity
 
 The similarity and dissimilarity is calculated using the following formulas:
-- Ordinal Similarity: $s = 1 - \frac{||p-q||}{n-1}$
+
+- Ordinal Similarity: $s = 1 - \frac{||p-q||}{p+q}$
 - Jaccard Index: $J(A,B) = \frac{|A \cap B|}{|A \cup B|}$
 
 ## Application of Formulas
@@ -30,11 +31,11 @@ Ordinal Similarity of Averages:
 - mature
 - dead_account
 - affiliate
+- life_time
 
 Ordinal Similarity of Median:
 
 - views
-- life_time
 
 Jaccard Index:
 
