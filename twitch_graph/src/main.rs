@@ -3,18 +3,13 @@ extern crate timeit;
 
 use std::{
     collections::HashMap,
-    hash::BuildHasherDefault, u128,
+    hash::BuildHasherDefault,
 };
 use rustc_hash::{
     FxHasher,
 };
 
-use utils::{
-    median,
-    ordinal_similarity,
-    read_edges,
-    read_features,
-};
+use utils::*;
 
 mod utils;
 
@@ -23,8 +18,8 @@ mod utils;
 fn main() {
     timeit!({
         let scores = TwitchData::new().max_score();
-        println!("Max similarity score: {:?}, between vertex {} and vertex {}", scores[0].2, scores[0].0, scores[0].1);
-        println!("Max dissimilarity score: {:?}, between vertex {} and vertex {}", scores[1].2, scores[1].0, scores[1].1);
+        println!("Max similarity score: {:?}, between node {} and node {}", scores[0].2, scores[0].0, scores[0].1);
+        println!("Max dissimilarity score: {:?}, between node {} and node {}", scores[1].2, scores[1].0, scores[1].1);
     });
 }
 
@@ -52,18 +47,18 @@ impl TwitchData {
 
         // for each node, compare it to every other node
         for node in self.nodes_edges.keys() {
-            for j in self.nodes_edges.get(node).unwrap() {
+            for connect in self.nodes_edges.get(node).unwrap() {
                 // if we've already seen this node, skip it
                 if seen.contains(&*node) {
                     continue;
                 }
 
-                let score = self.similarity_score(*node, *j);
+                let score = self.similarity_score(*node, *connect);
 
                 if score > max[0].2 {
-                    max[0] = (*node, *j, score);
+                    max[0] = (*node, *connect, score);
                 } else if 1.0 - score > max[1].2 {
-                    max[1] = (*node, *j, 1.0 - score);
+                    max[1] = (*node, *connect, 1.0 - score);
                 }
             }
 
@@ -80,6 +75,7 @@ impl TwitchData {
         return max
     }
 
+    /// Find connections of two nodes and compare the features of their connections
     fn similarity_score(&self, node_one: u32, node_two: u32) -> f64 {
         let edge_one = self.nodes_edges.get(&node_one).unwrap();
         let edge_two = self.nodes_edges.get(&node_two).unwrap();
@@ -88,6 +84,7 @@ impl TwitchData {
             return 0.0;
         }
 
+        // get the views of each connection into a vector and find the median then compare
         let views = {
             let mut one = edge_one.iter().map(|x| self.features.get(x).unwrap()[0].parse::<u128>().unwrap()).collect::<Vec<u128>>();
             let mut two = edge_two.iter().map(|x| self.features.get(x).unwrap()[0].parse::<u128>().unwrap()).collect::<Vec<u128>>();
@@ -105,7 +102,7 @@ fn test_twitch_data() {
     timeit!({
         let data = TwitchData::new();
         let scores = data.max_score();
-        println!("Max similarity score: {:?}, between vertex {} and vertex {}", scores[0].2, scores[0].0, scores[0].1);
-        println!("Max dissimilarity score: {:?}, between vertex {} and vertex {}", scores[1].2, scores[1].0, scores[1].1);
+        println!("Max similarity score: {:?}, between node {} and node {}", scores[0].2, scores[0].0, scores[0].1);
+        println!("Max dissimilarity score: {:?}, between node {} and node {}", scores[1].2, scores[1].0, scores[1].1);
     });
 }

@@ -81,6 +81,8 @@ pub fn read_features(file: String) -> HashMap<u32, Vec<String>, BuildHasherDefau
 }
 
 
+/// Takes in two f64s and returns a f64 representing the similarity between the two
+// No need for a dissimilarity function since 1 - similarity = dissimilarity
 pub fn ordinal_similarity(one:f64, two:f64) -> f64 {
     return 1.0 - (one - two).abs() / (one + two);
 }
@@ -129,6 +131,4 @@ mod tests{
         assert_eq!(4.5, median(&mut (0..10).map(|f| f as u128).collect::<Vec<u128>>()));
         assert_eq!(50.0, median(&mut (0..=100).map(|f| f as u128).collect::<Vec<u128>>()));
     }
-
-
 }
