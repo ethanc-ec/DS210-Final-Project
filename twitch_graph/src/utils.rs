@@ -80,6 +80,26 @@ pub fn read_features(file: String) -> HashMap<u32, Vec<String>, BuildHasherDefau
     return map;
 }
 
+
+pub fn ordinal_similarity(one:f64, two:f64) -> f64 {
+    return 1.0 - (one - two).abs() / (one + two);
+}
+
+
+pub fn median (vec: &mut Vec<u128>) -> f64 {
+    vec.sort_unstable(); // stable sort is not necessary
+    
+    let mid = vec.len() / 2;
+
+    if vec.len() % 2 == 0 {
+        (vec[mid] + vec[mid - 1]) as f64 / 2 as f64
+    } else {
+        vec[mid] as f64
+    }
+}
+
+
+
 #[cfg(test)]
 mod tests{
     use super::*;
@@ -87,26 +107,28 @@ mod tests{
     #[test]
     fn test_edges() {
         let temp = read_edges("data/large_twitch_edges.csv".to_string());
-        for (i, (key, value)) in temp.iter().enumerate() {
-            println!("{}: {:?}\n", key, value);
-            if i == 2 {
-                break;
-            }
-        }
-
         assert_eq!(168114, temp.len());
     }
 
     #[test]
     fn test_features() {
         let temp = read_features("data/large_twitch_features.csv".to_string());
-        for (i, (key, value)) in temp.iter().enumerate() {
-            println!("{}: {:?}\n", key, value);
-            if i == 2 {
-                break;
-            }
-        }
-
         assert_eq!(168114, temp.len());
     }
+
+    #[test]
+    fn test_ordinal_similarity() {
+        let a = (0..10).map(|f| (f as f64, (f + 1) as f64)).collect::<Vec<(f64, f64)>>();
+        for (one, two) in a {
+            assert_eq!({1.0 - (1.0 / (one + two))}, ordinal_similarity(one, two));
+        }
+    }
+
+    #[test]
+    fn test_median() {
+        assert_eq!(4.5, median(&mut (0..10).map(|f| f as u128).collect::<Vec<u128>>()));
+        assert_eq!(50.0, median(&mut (0..=100).map(|f| f as u128).collect::<Vec<u128>>()));
+    }
+
+
 }
